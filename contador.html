@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contador Feliz</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background: #282c34;
+        color: white;
+        margin: 0;
+        padding: 0;
+    }
+    .hora-actual {
+        font-size: 20px;
+        margin-top: 10px;
+    }
+    .evento {
+        font-size: 28px;
+        margin-top: 20px;
+    }
+    .contador {
+        font-size: 40px;
+        margin: 20px 0;
+    }
+    .mensaje {
+        font-size: 30px;
+        color: yellow;
+        margin-top: 20px;
+    }
+    .celebracion {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.9);
+        color: white;
+        font-size: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+        animation: aparecer 1s ease-in-out;
+    }
+    @keyframes aparecer {
+        from {opacity: 0;}
+        to {opacity: 1;}
+    }
+</style>
+</head>
+<body>
+    <div class="hora-actual" id="horaActual"></div>
+    <div class="evento" id="nombreEvento"></div>
+    <div class="contador" id="tiempoRestante"></div>
+    <div class="mensaje" id="mensajeEspecial"></div>
+    <div class="celebracion" id="celebracion">🎉 Es hora de ser Feliz 🎉</div>
+
+<!-- Librería de confeti -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+const evento = decodeURIComponent(params.get("evento") || "");
+const fechaEvento = new Date(decodeURIComponent(params.get("fecha") || ""));
+
+document.getElementById("nombreEvento").textContent = evento ? "Evento: " + evento : "Evento no especificado";
+
+function actualizarHoraActual() {
+    const ahora = new Date();
+    document.getElementById("horaActual").textContent = "Fecha y hora actual: " + ahora.toLocaleString();
+}
+setInterval(actualizarHoraActual, 1000);
+actualizarHoraActual();
+
+function actualizarContador() {
+    const ahora = new Date();
+    const diferencia = fechaEvento - ahora;
+
+    if (!evento || isNaN(fechaEvento.getTime())) {
+        document.getElementById("tiempoRestante").textContent = "⚠️ Faltan datos para mostrar el contador.";
+        return;
+    }
+
+    if (diferencia <= 0) {
+        document.getElementById("tiempoRestante").textContent = "¡Llegó el momento!";
+        document.getElementById("mensajeEspecial").textContent = "";
+        iniciarCelebracion();
+        return;
+    }
+
+    const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+    const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+    const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
+
+    document.getElementById("tiempoRestante").textContent =
+        `${dias}d ${horas}h ${minutos}m ${segundos}s`;
+
+    if (diferencia <= 3600000 && diferencia > 0) {
+        document.getElementById("mensajeEspecial").textContent = "Ya casi inicia tu tiempo feliz";
+    } else {
+        document.getElementById("mensajeEspecial").textContent = "";
+    }
+}
+setInterval(actualizarContador, 1000);
+actualizarContador();
+
+function iniciarCelebracion() {
+    document.getElementById("celebracion").style.display = "flex";
+    setInterval(() => {
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+    }, 500);
+}
+</script>
+</body>
+</html>
