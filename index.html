@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creador de Contador</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 20px;
+        background: linear-gradient(to bottom, #ffecd2, #fcb69f);
+    }
+    input, button {
+        padding: 10px;
+        margin: 10px;
+        font-size: 16px;
+    }
+    button {
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 8px;
+    }
+    button:hover {
+        background: #ff4757;
+    }
+    #resultado {
+        margin-top: 20px;
+        padding: 10px;
+        background: white;
+        border-radius: 10px;
+        display: none;
+    }
+    #resultado a {
+        display: block;
+        margin-bottom: 10px;
+        color: #ff6b6b;
+        text-decoration: none;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+    <h1>🎯 Crear tu Contador Feliz</h1>
+    <form id="contadorForm">
+        <input type="text" id="evento" placeholder="Nombre del evento" required><br>
+        <input type="datetime-local" id="fecha" required><br>
+        <button type="submit">Generar Contador</button>
+    </form>
+
+    <div id="resultado">
+        <a id="linkGenerado" href="#" target="_blank">Ver mi contador</a>
+        <button id="copiarBtn">📋 Copiar enlace</button>
+    </div>
+
+<script>
+document.getElementById("contadorForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const evento = encodeURIComponent(document.getElementById("evento").value);
+    const fecha = encodeURIComponent(document.getElementById("fecha").value);
+    const url = `contador.html?evento=${evento}&fecha=${fecha}`;
+
+    const link = `${window.location.origin}${window.location.pathname.replace('index.html','')}${url}`;
+    document.getElementById("linkGenerado").href = link;
+    document.getElementById("linkGenerado").textContent = link;
+
+    document.getElementById("resultado").style.display = "block";
+
+    // También abre el contador en otra pestaña
+    window.open(link, "_blank");
+});
+
+document.getElementById("copiarBtn").addEventListener("click", function() {
+    const enlace = document.getElementById("linkGenerado").href;
+    navigator.clipboard.writeText(enlace).then(() => {
+        alert("✅ Enlace copiado al portapapeles");
+    });
+});
+</script>
+</body>
+</html>
