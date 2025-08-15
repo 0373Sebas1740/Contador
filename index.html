@@ -1,82 +1,134 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Creador de Contador</title>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        padding: 20px;
-        background: linear-gradient(to bottom, #ffecd2, #fcb69f);
-    }
-    input, button {
-        padding: 10px;
-        margin: 10px;
-        font-size: 16px;
-    }
-    button {
-        background: #ff6b6b;
-        color: white;
-        border: none;
-        cursor: pointer;
-        border-radius: 8px;
-    }
-    button:hover {
-        background: #ff4757;
-    }
-    #resultado {
-        margin-top: 20px;
-        padding: 10px;
-        background: white;
-        border-radius: 10px;
-        display: none;
-    }
-    #resultado a {
-        display: block;
-        margin-bottom: 10px;
-        color: #ff6b6b;
-        text-decoration: none;
-        font-weight: bold;
-    }
+  :root { --primary:#ff6b6b; --primary-hover:#ff4757; }
+  body{
+    font-family: 'Century Gothic','Segoe UI',Tahoma,sans-serif;
+    font-weight:600;
+    text-align:center;
+    padding:24px;
+    margin:0;
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    color:#fff;
+    background: linear-gradient(-45deg, #ff512f, #dd2476, #24c6dc, #514a9d);
+    background-size:400% 400%;
+    animation: gradientBG 15s ease infinite;
+  }
+  @keyframes gradientBG{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  .card{
+    background:rgba(0,0,0,.3);
+    padding:24px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.25);
+    width:min(720px, 92vw);
+  }
+  h1{margin:0 0 8px; font-size:clamp(22px,4vw,32px)}
+  p{margin:0 0 16px; opacity:.9}
+  .row{display:flex; gap:12px; flex-wrap:wrap; justify-content:center}
+  input,button{
+    font-family:inherit; font-weight:700;
+    padding:12px 14px; border-radius:12px; border:none; outline:none;
+    font-size:clamp(14px,2.8vw,18px);
+  }
+  input{
+    min-width:260px; background:rgba(255,255,255,.1); color:#fff;
+  }
+  input::placeholder{color:rgba(255,255,255,.7)}
+  button{
+    background:var(--primary); color:#fff; cursor:pointer;
+  }
+  button:hover{ background:var(--primary-hover); }
+  #resultado{
+    display:none; margin-top:16px; padding:14px;
+    background:rgba(255,255,255,.12); border-radius:12px;
+    word-break:break-all; text-align:left;
+  }
+  #resultado a{ color:#ffe082; text-decoration:none; font-weight:800 }
+  .actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
+  .btn-sec{ background:rgba(255,255,255,.18) }
+  .note{font-size:12px; opacity:.8; margin-top:6px}
 </style>
 </head>
 <body>
-    <h1>🎯 Crear tu Contador Feliz</h1>
-    <form id="contadorForm">
-        <input type="text" id="evento" placeholder="Nombre del evento" required><br>
-        <input type="datetime-local" id="fecha" required><br>
-        <button type="submit">Generar Contador</button>
+  <div class="card">
+    <h1>🎯 Crea tu seguimiento</h1>
+    <p>Ingresa el nombre del evento y la fecha/hora. Generaré el link listo para compartir.</p>
+
+    <form id="contadorForm" class="row">
+      <input type="text" id="evento" placeholder="Nombre del evento" required />
+      <input type="datetime-local" id="fecha" required />
+      <button type="submit">Generar contador</button>
+      <button type="button" id="btnLimpiar" class="btn-sec">Limpiar</button>
     </form>
 
     <div id="resultado">
-        <a id="linkGenerado" href="#" target="_blank">Ver mi contador</a>
-        <button id="copiarBtn">📋 Copiar enlace</button>
+      <div><strong>Enlace:</strong> <a id="linkGenerado" href="#" target="_blank"></a></div>
+      <div class="actions">
+        <button type="button" id="copiarBtn">📋 Copiar enlace</button>
+        <button type="button" id="abrirBtn">🔗 Abrir contador</button>
+      </div>
+      <div class="note">Tip: comparte este enlace por WhatsApp o correo.</div>
     </div>
+  </div>
 
 <script>
-document.getElementById("contadorForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const evento = encodeURIComponent(document.getElementById("evento").value);
-    const fecha = encodeURIComponent(document.getElementById("fecha").value);
-    const url = `contador.html?evento=${evento}&fecha=${fecha}`;
+const form = document.getElementById("contadorForm");
+const eventoInput = document.getElementById("evento");
+const fechaInput = document.getElementById("fecha");
+const resultado = document.getElementById("resultado");
+const linkEl = document.getElementById("linkGenerado");
+const copiarBtn = document.getElementById("copiarBtn");
+const abrirBtn = document.getElementById("abrirBtn");
+const btnLimpiar = document.getElementById("btnLimpiar");
 
-    const link = `${window.location.origin}${window.location.pathname.replace('index.html','')}${url}`;
-    document.getElementById("linkGenerado").href = link;
-    document.getElementById("linkGenerado").textContent = link;
+// Construye la URL absoluta apuntando a contador.html en el mismo sitio
+function construirLink(evento, fechaISO) {
+  const base = `${window.location.origin}${window.location.pathname.replace(/index\.html?$/,'')}`;
+  const qs = `evento=${encodeURIComponent(evento)}&fecha=${encodeURIComponent(fechaISO)}`;
+  return `${base}contador.html?${qs}`;
+}
 
-    document.getElementById("resultado").style.display = "block";
+form.addEventListener("submit", (e)=>{
+  e.preventDefault();
+  const evento = eventoInput.value.trim();
+  const fecha = fechaInput.value; // formato datetime-local (YYYY-MM-DDTHH:mm)
 
-    // También abre el contador en otra pestaña
-    window.open(link, "_blank");
+  if(!evento || !fecha){
+    alert("Por favor escribe el nombre del evento y la fecha/hora.");
+    return;
+  }
+
+  // Mostrar y poblar el link
+  const link = construirLink(evento, fecha);
+  linkEl.href = link;
+  linkEl.textContent = link;
+  resultado.style.display = "block";
 });
 
-document.getElementById("copiarBtn").addEventListener("click", function() {
-    const enlace = document.getElementById("linkGenerado").href;
-    navigator.clipboard.writeText(enlace).then(() => {
-        alert("✅ Enlace copiado al portapapeles");
-    });
+copiarBtn.addEventListener("click", ()=>{
+  const enlace = linkEl.getAttribute("href");
+  if(!enlace){ return; }
+  navigator.clipboard.writeText(enlace).then(()=>{
+    alert("✅ Enlace copiado al portapapeles");
+  });
+});
+
+abrirBtn.addEventListener("click", ()=>{
+  const enlace = linkEl.getAttribute("href");
+  if(enlace) window.open(enlace, "_blank");
+});
+
+// 👉 Limpiador: borra evento, fecha y el link generado
+btnLimpiar.addEventListener("click", ()=>{
+  eventoInput.value = "";
+  fechaInput.value = "";
+  linkEl.removeAttribute("href");
+  linkEl.textContent = "";
+  resultado.style.display = "none";
+  eventoInput.focus();
 });
 </script>
 </body>
