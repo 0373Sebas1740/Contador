@@ -14,7 +14,8 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Century Gothic', 'Segoe UI', Tahoma, sans-serif;
+            font-weight: bold;
             color: white;
             background: linear-gradient(-45deg, #ff512f, #dd2476, #24c6dc, #514a9d);
             background-size: 400% 400%;
@@ -27,22 +28,28 @@
             100% { background-position: 0% 50%; }
         }
 
-        h1 {
+        #fechaActual {
             font-size: 2.5em;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 25px;
         }
 
         #countdown {
-            font-size: 2em;
+            font-size: 3.5em;
             line-height: 1.5;
-            white-space: pre-line; /* Permite saltos de línea */
+            white-space: pre-line; /* Salto de línea */
         }
 
         #message {
-            font-size: 3em;
+            font-size: 4em;
             font-weight: bold;
             color: yellow;
             animation: pulse 1s infinite;
+            margin-top: 30px;
         }
 
         @keyframes pulse {
@@ -53,6 +60,7 @@
     </style>
 </head>
 <body>
+    <div id="fechaActual"></div>
     <h1 id="eventoNombre"></h1>
     <div id="countdown"></div>
     <div id="message"></div>
@@ -64,6 +72,12 @@
         const fechaEvento = new Date(params.get("fecha"));
 
         document.getElementById("eventoNombre").textContent = evento;
+
+        function actualizarFechaActual() {
+            const hoy = new Date();
+            const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById("fechaActual").textContent = hoy.toLocaleDateString('es-ES', opciones);
+        }
 
         function actualizarCuenta() {
             const ahora = new Date();
@@ -103,6 +117,7 @@
             })();
         }
 
+        actualizarFechaActual();
         const intervalo = setInterval(actualizarCuenta, 1000);
     </script>
 </body>
