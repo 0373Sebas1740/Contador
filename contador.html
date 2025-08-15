@@ -28,14 +28,31 @@
             100% { background-position: 0% 50%; }
         }
 
+        /* Barra superior con fecha y hora actual + fecha del evento */
+        #topBar {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.5em;
+            flex-wrap: wrap;
+        }
+
         #fechaActual {
-            font-size: 2.5em;
-            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        #fechaEvento {
+            font-size: 1em;
+            opacity: 0.8;
         }
 
         h1 {
             font-size: 3em;
             margin-bottom: 25px;
+            margin-top: 70px; /* espacio por la barra */
         }
 
         #countdown {
@@ -60,7 +77,13 @@
     </style>
 </head>
 <body>
-    <div id="fechaActual"></div>
+    <!-- Barra superior -->
+    <div id="topBar">
+        <div id="fechaActual"></div>
+        <div id="fechaEvento"></div>
+    </div>
+
+    <!-- Contenido principal -->
     <h1 id="eventoNombre"></h1>
     <div id="countdown"></div>
     <div id="message"></div>
@@ -74,9 +97,22 @@
         document.getElementById("eventoNombre").textContent = evento;
 
         function actualizarFechaActual() {
-            const hoy = new Date();
-            const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById("fechaActual").textContent = hoy.toLocaleDateString('es-ES', opciones);
+            const ahora = new Date();
+            const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const opcionesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+
+            document.getElementById("fechaActual").textContent =
+                ahora.toLocaleDateString('es-ES', opcionesFecha) + " " +
+                ahora.toLocaleTimeString('es-ES', opcionesHora);
+        }
+
+        function mostrarFechaEvento() {
+            const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const opcionesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+
+            document.getElementById("fechaEvento").textContent =
+                "📅 " + fechaEvento.toLocaleDateString('es-ES', opcionesFecha) +
+                " " + fechaEvento.toLocaleTimeString('es-ES', opcionesHora);
         }
 
         function actualizarCuenta() {
@@ -117,7 +153,9 @@
             })();
         }
 
+        mostrarFechaEvento();
         actualizarFechaActual();
+        setInterval(actualizarFechaActual, 1000);
         const intervalo = setInterval(actualizarCuenta, 1000);
     </script>
 </body>
