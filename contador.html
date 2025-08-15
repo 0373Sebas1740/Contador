@@ -1,116 +1,109 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Contador</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #282c34;
-        color: white;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: center; /* Centrado vertical */
-        align-items: center;     /* Centrado horizontal */
-        height: 100vh;
-        text-align: center;
-    }
-    h1, h2 {
-        margin: 10px 0;
-    }
-    .celebracion {
-        display: none; /* Oculta por defecto */
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.9);
-        color: white;
-        font-size: 100px;
-        justify-content: center;
-        align-items: center;
-        z-index: 999;
-        animation: aparecer 1s ease-in-out;
-    }
-    @keyframes aparecer {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuenta Regresiva</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            background: linear-gradient(-45deg, #ff512f, #dd2476, #24c6dc, #514a9d);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        #countdown {
+            font-size: 2em;
+            line-height: 1.5;
+            white-space: pre-line; /* Permite saltos de línea */
+        }
+
+        #message {
+            font-size: 3em;
+            font-weight: bold;
+            color: yellow;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
 </head>
 <body>
+    <h1 id="eventoNombre"></h1>
+    <div id="countdown"></div>
+    <div id="message"></div>
 
-<h1 id="nombreEvento"></h1>
-<h2 id="fechaActual"></h2>
-<h2 id="tiempoRestante"></h2>
-<p id="mensajeEspecial"></p>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const evento = params.get("evento") || "Tu evento especial";
+        const fechaEvento = new Date(params.get("fecha"));
 
-<div class="celebracion" id="celebracion">
-    🎉 Es hora de ser Feliz 🎉
-</div>
+        document.getElementById("eventoNombre").textContent = evento;
 
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<script>
-    const params = new URLSearchParams(window.location.search);
-    const evento = params.get("evento");
-    const fechaEvento = params.get("fecha");
+        function actualizarCuenta() {
+            const ahora = new Date();
+            const diferencia = fechaEvento - ahora;
 
-    // Mostrar nombre del evento sin "Evento:"
-    document.getElementById("nombreEvento").textContent = evento || "Evento no especificado";
+            if (diferencia <= 0) {
+                document.getElementById("countdown").textContent = "";
+                document.getElementById("message").textContent = "🎉 Es hora de ser Feliz 🎉";
+                lanzarConfeti();
+                clearInterval(intervalo);
+                return;
+            }
 
-    function actualizarReloj() {
-        const ahora = new Date();
-        document.getElementById("fechaActual").textContent = 
-            "Fecha y hora actual: " + ahora.toLocaleString();
-    }
+            const horasRestantes = diferencia / (1000 * 60 * 60);
+            if (horasRestantes <= 1 && horasRestantes > 0) {
+                document.getElementById("message").textContent = "⏳ Ya casi inicia tu tiempo feliz ⏳";
+            } else {
+                document.getElementById("message").textContent = "";
+            }
 
-    function actualizarContador() {
-        if (!fechaEvento) {
-            document.getElementById("tiempoRestante").textContent = "No se especificó fecha del evento.";
-            return;
+            const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+            const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+            const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
+
+            document.getElementById("countdown").textContent =
+                `${dias} días\n${horas} horas\n${minutos} minutos\n${segundos} segundos`;
         }
 
-        const ahora = new Date();
-        const fechaObjetivo = new Date(fechaEvento);
-        const diferencia = fechaObjetivo - ahora;
+        function lanzarConfeti() {
+            const duration = 5 * 1000;
+            const end = Date.now() + duration;
 
-        if (diferencia <= 0) {
-            document.getElementById("tiempoRestante").textContent = "¡Llegó el momento!";
-            document.getElementById("mensajeEspecial").textContent = "";
-            iniciarCelebracion();
-            return;
+            (function frame() {
+                confetti({ particleCount: 5, spread: 60 });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            })();
         }
 
-        const segundos = Math.floor(diferencia / 1000) % 60;
-        const minutos = Math.floor(diferencia / (1000 * 60)) % 60;
-        const horas = Math.floor(diferencia / (1000 * 60 * 60)) % 24;
-        const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
-
-        document.getElementById("tiempoRestante").textContent = 
-            `${dias} días, ${horas} horas, ${minutos} minutos, ${segundos} segundos`;
-
-        if (diferencia <= 3600000) { // 1 hora en ms
-            document.getElementById("mensajeEspecial").textContent = "Ya casi inicia tu tiempo feliz";
-        } else {
-            document.getElementById("mensajeEspecial").textContent = "";
-        }
-    }
-
-    function iniciarCelebracion() {
-        const celebracion = document.getElementById("celebracion");
-        celebracion.style.display = "flex";
-        setInterval(() => {
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
-        }, 500);
-    }
-
-    setInterval(actualizarReloj, 1000);
-    setInterval(actualizarContador, 1000);
-</script>
+        const intervalo = setInterval(actualizarCuenta, 1000);
+    </script>
 </body>
 </html>
